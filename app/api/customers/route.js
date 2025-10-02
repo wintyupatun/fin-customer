@@ -1,28 +1,29 @@
-import { NextResponse } from 'next/server';
-import { dbConnect } from '@/lib/mongoose';
-import Customer from '@/models/Customer';
+import { NextResponse } from "next/server";
+import dbConnect from "../../../lib/db";
+import Customer from "../../../models/Customer";
 
-export const runtime = 'nodejs';
-export const dynamic = 'force-dynamic';
-
+// GET /api/customers
 export async function GET() {
   await dbConnect();
-  const all = await Customer.find().sort({ createdAt: -1 });
-  return NextResponse.json(all);
+  const docs = await Customer.find({}).sort({ createdAt: -1 });
+  return NextResponse.json(docs);
 }
 
+// POST /api/customers
 export async function POST(req) {
+  await dbConnect();
   try {
-    await dbConnect();
     const body = await req.json();
-    const created = await Customer.create({
+    const doc = await Customer.create({
       name: body.name,
-      dateOfBirth: new Date(body.dateOfBirth),
-      memberNumber: body.memberNumber,
-      interests: body.interests ?? ''
+      dateOfBirth: body.dateOfBirth ? new Date(body.dateOfBirth) : null,
+      memberNumber: Number(body.memberNumber) || 0,
+      interests: body.interests ?? "",
     });
-    return NextResponse.json(created, { status: 201 });
-  } catch (e) {
-    return NextResponse.json({ error: e.message }, { status: 400 });
+    return NextResponse.json(doc, { status: 201 });
+  } catch (err) {
+    return NextResponse.json({ error: String(err?.message || err) }, { status: 500 });
   }
 }
+
+

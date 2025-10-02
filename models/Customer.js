@@ -1,13 +1,12 @@
-import mongoose, { Schema, models, model } from 'mongoose';
+import mongoose from "mongoose";
 
-const CustomerSchema = new Schema(
-  {
-    name: { type: String, required: true, trim: true },
-    dateOfBirth: { type: Date, required: true },
-    memberNumber: { type: Number, required: true, min: 1, unique: true },
-    interests: { type: String, default: '' }
-  },
-  { timestamps: true }
-);
+const CustomerSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  dateOfBirth: { type: Date },
+  memberNumber: { type: Number },
+  interests: { type: String },
+});
 
-export default models.Customer || model('Customer', CustomerSchema);
+export default mongoose.models.Customer ||
+  mongoose.model("Customer", CustomerSchema);
+

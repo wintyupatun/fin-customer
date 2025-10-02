@@ -1,41 +1,39 @@
-import { NextResponse } from 'next/server';
-import { dbConnect } from '@/lib/mongoose';
-import Customer from '@/models/Customer';
+import { NextResponse } from "next/server";
+import dbConnect from "../../../../lib/db";
+import Customer from "../../../../models/Customer";
 
-export const runtime = 'nodejs';
-export const dynamic = 'force-dynamic';
-
+// GET /api/customers/:id
 export async function GET(_req, { params }) {
   await dbConnect();
-  const c = await Customer.findById(params.id);
-  if (!c) return NextResponse.json({ error: 'Not found' }, { status: 404 });
-  return NextResponse.json(c);
+  const doc = await Customer.findById(params.id);
+  if (!doc) return NextResponse.json({ error: "Not found" }, { status: 404 });
+  return NextResponse.json(doc);
 }
 
+// PUT /api/customers/:id
 export async function PUT(req, { params }) {
+  await dbConnect();
   try {
-    await dbConnect();
     const body = await req.json();
-    const updated = await Customer.findByIdAndUpdate(
-      params.id,
-      {
-        name: body.name,
-        dateOfBirth: new Date(body.dateOfBirth),
-        memberNumber: body.memberNumber,
-        interests: body.interests ?? ''
-      },
-      { new: true, runValidators: true }
-    );
-    if (!updated) return NextResponse.json({ error: 'Not found' }, { status: 404 });
-    return NextResponse.json(updated);
-  } catch (e) {
-    return NextResponse.json({ error: e.message }, { status: 400 });
+    const update = {
+      name: body.name,
+      dateOfBirth: body.dateOfBirth ? new Date(body.dateOfBirth) : null,
+      memberNumber: Number(body.memberNumber) || 0,
+      interests: body.interests ?? "",
+    };
+    const doc = await Customer.findByIdAndUpdate(params.id, update, { new: true });
+    if (!doc) return NextResponse.json({ error: "Not found" }, { status: 404 });
+    return NextResponse.json(doc);
+  } catch (err) {
+    return NextResponse.json({ error: String(err?.message || err) }, { status: 500 });
   }
 }
 
+// DELETE /api/customers/:id
 export async function DELETE(_req, { params }) {
   await dbConnect();
-  const del = await Customer.findByIdAndDelete(params.id);
-  if (!del) return NextResponse.json({ error: 'Not found' }, { status: 404 });
+  await Customer.findByIdAndDelete(params.id);
   return NextResponse.json({ ok: true });
 }
+
+
