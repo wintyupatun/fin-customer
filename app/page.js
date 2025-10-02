@@ -53,9 +53,7 @@ export default function CustomersPage() {
         <h1 className="text-3xl font-semibold">Customers</h1>
         <nav className="text-sm text-gray-500">
           {/* keep these if your skeleton used them; safe to remove otherwise */}
-          <a href="/product" className="hover:underline">Products</a>
           <span className="mx-2">•</span>
-          <a href="/category" className="hover:underline">Category</a>
         </nav>
       </header>
 
